@@ -1,0 +1,117 @@
+package utb.fai;
+
+import java.io.*;
+import java.net.*;
+import java.util.concurrent.*;
+
+public class SocketHandler {
+	/** mySocket je socket, o který se bude tento SocketHandler starat */
+	Socket mySocket;
+
+	/** client ID je řetezec ve formátu <IP_adresa>:<port> */
+	String clientID;
+
+	/**
+	 * activeHandlers je reference na množinu všech právě běžících SocketHandlerů.
+	 * Potřebujeme si ji udržovat, abychom mohli zprávu od tohoto klienta
+	 * poslat všem ostatním!
+	 */
+	ActiveHandlers activeHandlers;
+
+	/**
+	 * messages je fronta příchozích zpráv, kterou musí mít kažý klient svoji
+	 * vlastní - pokud bude přetížená nebo nefunkční klientova síť,
+	 * čekají zprávy na doručení právě ve frontě messages
+	 */
+	ArrayBlockingQueue<String> messages = new ArrayBlockingQueue<String>(20);
+
+	/**
+	 * startSignal je synchronizační závora, která zařizuje, aby oba tasky
+	 * OutputHandler.run() a InputHandler.run() začaly ve stejný okamžik.
+	 */
+	CountDownLatch startSignal = new CountDownLatch(2);
+
+	/** outputHandler.run() se bude starat o OutputStream mého socketu */
+	OutputHandler outputHandler = new OutputHandler();
+	/** inputHandler.run() se bude starat o InputStream mého socketu */
+	InputHandler inputHandler = new InputHandler();
+	/**
+	 * protože v outputHandleru nedovedu detekovat uzavření socketu, pomůže mi
+	 * inputFinished
+	 */
+	volatile boolean inputFinished = false;
+
+	public SocketHandler(Socket mySocket, ActiveHandlers activeHandlers) {
+		this.mySocket = mySocket;
+		clientID = mySocket.getInetAddress().toString() + ":" + mySocket.getPort();
+		this.activeHandlers = activeHandlers;
+	}
+
+	class OutputHandler implements Runnable {
+		public void run() {
+			OutputStreamWriter writer;
+			try {
+				System.err.println("DBG>Output handler starting for " + clientID);
+				startSignal.countDown();
+				startSignal.await();
+				System.err.println("DBG>Output handler running for " + clientID);
+				writer = new OutputStreamWriter(mySocket.getOutputStream(), "UTF-8");
+				writer.write("\nYou are connected from " + clientID + "\n");
+				writer.flush();
+				while (!inputFinished) {
+					String m = messages.take();// blokující čtení - pokud není ve frontě zpráv nic, uspi se!
+					writer.write(m + "\r\n"); // pokud nějaké zprávy od ostatních máme,
+					writer.flush(); // pošleme je našemu klientovi
+					System.err.println("DBG>Message sent to " + clientID + ":" + m + "\n");
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.err.println("DBG>Output handler for " + clientID + " has finished.");
+
+		}
+	}
+
+	class InputHandler implements Runnable {
+		public void run() {
+			try {
+				System.err.println("DBG>Input handler starting for " + clientID);
+				startSignal.countDown();
+				startSignal.await();
+				System.err.println("DBG>Input handler running for " + clientID);
+				String request = "";
+				/**
+				 * v okamžiku, kdy nás Thread pool spustí, přidáme se do množiny
+				 * všech aktivních handlerů, aby chodily zprávy od ostatních i nám
+				 */
+				activeHandlers.add(SocketHandler.this);
+				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), "UTF-8"));
+				while ((request = reader.readLine()) != null) { // přišla od mého klienta nějaká zpráva?
+					// ano - pošli ji všem ostatním klientům
+					request = "From client " + clientID + ": " + request;
+					System.out.println(request);
+					activeHandlers.sendMessageToAll(SocketHandler.this, request);
+				}
+				inputFinished = true;
+				messages.offer("OutputHandler, wakeup and die!");
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} finally {
+				// remove yourself from the set of activeHandlers
+				synchronized (activeHandlers) {
+					activeHandlers.remove(SocketHandler.this);
+				}
+			}
+			System.err.println("DBG>Input handler for " + clientID + " has finished.");
+		}
+
+	}
+}
