@@ -37,7 +37,7 @@ public class SocketHandler {
 	InputHandler inputHandler = new InputHandler();
 	/**
 	 * protože v outputHandleru nedovedu detekovat uzavření socketu, pomůže mi
-	 * inputFinished
+	 * inputFinished, jelikož je to super
 	 */
 	volatile boolean inputFinished = false;
 
