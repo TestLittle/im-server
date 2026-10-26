@@ -63,9 +63,7 @@ jobs:
         path: app/build/libs
 
     - name: Run black box tests
-      run: |
-        curl -o test-config-4.yaml "https://gitlab.com/ap5vs/test-config/im-server-config/-/raw/main/test-config-4.yaml?ref_type=heads"
-        java -jar NATT.jar -c test-config-4.yaml
+      run: java -jar NATT.jar -nc https://gitlab.com/ap5vs/test-config/im-server-config/-/raw/main/test-config-4.yaml?ref_type=heads
 
     - name: Save test report
       if: always()
