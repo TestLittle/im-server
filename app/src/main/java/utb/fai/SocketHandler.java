@@ -10,6 +10,7 @@ public class SocketHandler {
 
 	/** client ID je řetezec ve formátu <IP_adresa>:<port> */
 	String clientID;
+	String clientName;
 
 	/**
 	 * activeHandlers je reference na množinu všech právě běžících SocketHandlerů.
@@ -56,7 +57,8 @@ public class SocketHandler {
 				startSignal.await();
 				System.err.println("DBG>Output handler running for " + clientID);
 				writer = new OutputStreamWriter(mySocket.getOutputStream(), "UTF-8");
-				writer.write("\nYou are connected from " + clientID + "\n");
+				//writer.write("You are connected from " + clientID + "\n");
+				writer.write("Zadejte jmeno, pod kterym budete chatovat:\n");
 				writer.flush();
 				while (!inputFinished) {
 					String m = messages.take();// blokující čtení - pokud není ve frontě zpráv nic, uspi se!
@@ -84,6 +86,7 @@ public class SocketHandler {
 				startSignal.await();
 				System.err.println("DBG>Input handler running for " + clientID);
 				String request = "";
+				boolean isFirstConn = true;
 				/**
 				 * v okamžiku, kdy nás Thread pool spustí, přidáme se do množiny
 				 * všech aktivních handlerů, aby chodily zprávy od ostatních i nám
@@ -91,8 +94,14 @@ public class SocketHandler {
 				activeHandlers.add(SocketHandler.this);
 				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), "UTF-8"));
 				while ((request = reader.readLine()) != null) { // přišla od mého klienta nějaká zpráva?
+					if(isFirstConn){
+						activeHandlers.setName(SocketHandler.this, request);
+						isFirstConn = false;
+						continue;
+					}
 					// ano - pošli ji všem ostatním klientům
-					request = "From client " + clientID + ": " + request;
+					//request = "From client " + clientID + ": " + request;
+					request = "[" + clientName + "] >> " + request;
 					System.out.println(request);
 					activeHandlers.sendMessageToAll(SocketHandler.this, request);
 				}

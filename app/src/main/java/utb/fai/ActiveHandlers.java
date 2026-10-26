@@ -41,4 +41,8 @@ public class ActiveHandlers {
     synchronized boolean remove(SocketHandler handler) {
         return activeHandlersSet.remove(handler);
     }
+
+    synchronized void setName(SocketHandler socketHandler, String name){
+        socketHandler.clientName = name;
+    }
 }
