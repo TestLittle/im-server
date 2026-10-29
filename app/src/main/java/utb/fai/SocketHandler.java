@@ -3,6 +3,7 @@ package utb.fai;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
+import java.util.*;
 
 public class SocketHandler {
 	/** mySocket je socket, o který se bude tento SocketHandler starat */
@@ -98,7 +99,7 @@ public class SocketHandler {
 					if(isFirstConn){
 						bool exists = false;
 						for(int i = 0; i < clientNames.size(); i++){
-							if(request.equals(clientNames[i])){
+							if(request.equals(clientNames.get(i))){
 								exists = true;
 								break;
 							}
@@ -115,7 +116,7 @@ public class SocketHandler {
 						bool exists = false;
 						String name = request.replace("#setMyName", "").trim();
 						for(int i = 0; i < clientNames.size(); i++){
-							if(name.equals(clientNames[i])){
+							if(name.equals(clientNames.get(i))){
 								exists = true;
 								break;
 							}
