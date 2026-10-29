@@ -99,6 +99,12 @@ public class SocketHandler {
 						isFirstConn = false;
 						continue;
 					}
+
+					if(request.startsWith("#setMyName")){
+						String name = request.replace("#setMyName", "").trim();
+						activeHandlers.setName(SocketHandler.this, name);
+						continue;
+					}
 					// ano - pošli ji všem ostatním klientům
 					//request = "From client " + clientID + ": " + request;
 					request = "[" + clientName + "] >> " + request;
