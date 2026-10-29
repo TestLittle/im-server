@@ -113,16 +113,15 @@ public class SocketHandler {
 					// ano - pošli ji všem ostatním klientům
 					//request = "From client " + clientID + ": " + request;
 					request = "[" + clientName + "] >> " + request;
-					System.out.println(request);
 
 					if(request.startsWith("#sendPrivate")){
 						String message = request.replace("#sendPrivate ", "");
 						String msg[] = message.split(" ");
 						String receiver = msg[0];
-						message = msg[1];
-						activeHandlers.sendPrivateMessage(SocketHandler.this, receiver, message);
+						request = "[" + clientName + "] >> " + msg[1];
+						activeHandlers.sendPrivateMessage(SocketHandler.this, receiver, request);
 					}
-
+					System.out.println(request);
 					activeHandlers.sendMessageToAll(SocketHandler.this, request);
 				}
 				inputFinished = true;
