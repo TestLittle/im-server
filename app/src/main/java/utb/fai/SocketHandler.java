@@ -118,7 +118,7 @@ public class SocketHandler {
 						String message = request.replace("#sendPrivate ", "");
 						String msg[] = message.split(" ");
 						String receiver = msg[0];
-						request = "[" + clientName + "] >> " + msg[1];
+						request = msg[1];
 						activeHandlers.sendPrivateMessage(SocketHandler.this, receiver, request);
 					}
 					System.out.println(request);
