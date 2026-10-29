@@ -119,10 +119,12 @@ public class SocketHandler {
 						String msg[] = message.split(" ");
 						String receiver = msg[0];
 						request = "[" + clientName + "] >> " + msg[1];
+						System.out.println(request);
 						activeHandlers.sendPrivateMessage(SocketHandler.this, receiver, request);
+					}else{
+						System.out.println(request);
+						activeHandlers.sendMessageToAll(SocketHandler.this, request);
 					}
-					System.out.println(request);
-					activeHandlers.sendMessageToAll(SocketHandler.this, request);
 				}
 				inputFinished = true;
 				messages.offer("OutputHandler, wakeup and die!");
