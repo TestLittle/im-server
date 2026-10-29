@@ -107,9 +107,6 @@ public class SocketHandler {
 					if(request.startsWith("#setMyName")){
 						String name = request.replace("#setMyName", "").trim();
 						boolean exists = rename(name);
-						if(!exists){
-							clientNames.remove(index);
-						}
 						continue;
 					}
 
@@ -155,6 +152,9 @@ public class SocketHandler {
 				}
 			}
 			if(!exists){
+				if(clientName != null){
+					clientNames.remove(clientName);
+				}
 				clientNames.add(newName);
 				activeHandlers.setName(SocketHandler.this, newName);
 			}
