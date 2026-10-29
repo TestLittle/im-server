@@ -116,7 +116,7 @@ public class SocketHandler {
 						request = request.replace("#sendPrivate", "");
 						request = request.replace(receiver, "");
 						request = request.replaceFirst("^\\s*", ""); //Odebrání mezer na začátku
-						request = "[" + clientName + "] >> " + request;
+						request = "[" + msg[1] + "] >> " + request;
 						System.out.println(request);
 						activeHandlers.sendPrivateMessage(SocketHandler.this, receiver, request);
 					}else{
