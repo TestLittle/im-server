@@ -97,13 +97,19 @@ public class SocketHandler {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), "UTF-8"));
 				while ((request = reader.readLine()) != null) { // přišla od mého klienta nějaká zpráva?
 					if(isFirstConn){
-						rename(request, "firstName");
+						boolean exists = rename(request);
+						if(!exists){
+							isFirstConn = false;
+						}
 						continue;
 					}
 
 					if(request.startsWith("#setMyName")){
 						String name = request.replace("#setMyName", "").trim();
-						rename(name, "rename");
+						boolean exists = rename(name);
+						if(!exists){
+							clientNames.remove(index);
+						}
 						continue;
 					}
 
@@ -139,11 +145,11 @@ public class SocketHandler {
 			System.err.println("DBG>Input handler for " + clientID + " has finished.");
 		}
 
-		public void rename(String newName, String type){
+		public boolean rename(String newName){
 			boolean exists = false;
 			int index;
-			for(index = 0; i < clientNames.size(); i++){
-				if(newName.equals(clientNames.get(i))){
+			for(index = 0; index < clientNames.size(); index++){
+				if(newName.equals(clientNames.get(index))){
 					exists = true;
 					break;
 				}
@@ -151,11 +157,8 @@ public class SocketHandler {
 			if(!exists){
 				clientNames.add(newName);
 				activeHandlers.setName(SocketHandler.this, newName);
-				isFirstConn = false;
 			}
-			if(type.equals("rename")){
-				clientNames.remove(index);
-			}
+			return exists;
 		}
 
 	}
