@@ -97,7 +97,7 @@ public class SocketHandler {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), "UTF-8"));
 				while ((request = reader.readLine()) != null) { // přišla od mého klienta nějaká zpráva?
 					if(isFirstConn){
-						bool exists = false;
+						boolean exists = false;
 						for(int i = 0; i < clientNames.size(); i++){
 							if(request.equals(clientNames.get(i))){
 								exists = true;
@@ -113,7 +113,7 @@ public class SocketHandler {
 					}
 
 					if(request.startsWith("#setMyName")){
-						bool exists = false;
+						boolean exists = false;
 						String name = request.replace("#setMyName", "").trim();
 						for(int i = 0; i < clientNames.size(); i++){
 							if(name.equals(clientNames.get(i))){
