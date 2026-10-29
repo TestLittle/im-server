@@ -97,41 +97,29 @@ public class SocketHandler {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), "UTF-8"));
 				while ((request = reader.readLine()) != null) { // přišla od mého klienta nějaká zpráva?
 					if(isFirstConn){
-						boolean exists = false;
-						for(int i = 0; i < clientNames.size(); i++){
-							if(request.equals(clientNames.get(i))){
-								exists = true;
-								break;
-							}
-						}
-						if(!exists){
-							clientNames.add(request);
-							activeHandlers.setName(SocketHandler.this, request);
-							isFirstConn = false;
-						}
+						rename(request, "firstName");
 						continue;
 					}
 
 					if(request.startsWith("#setMyName")){
-						boolean exists = false;
 						String name = request.replace("#setMyName", "").trim();
-						for(int i = 0; i < clientNames.size(); i++){
-							if(name.equals(clientNames.get(i))){
-								exists = true;
-								break;
-							}
-						}
-						if(!exists){
-							clientNames.remove(clientName);
-							activeHandlers.setName(SocketHandler.this, name);
-							clientNames.add(name);
-						}
+						rename(name, "rename");
 						continue;
 					}
+
 					// ano - pošli ji všem ostatním klientům
 					//request = "From client " + clientID + ": " + request;
 					request = "[" + clientName + "] >> " + request;
 					System.out.println(request);
+
+					if(request.startsWith("#sendPrivate")){
+						String message = request.replace("#sendPrivate ", "");
+						String msg[] = message.split(" ");
+						String receiver = msg[0];
+						message = msg[1];
+						activeHandlers.sendPrivateMessage(SocketHandler.this, receiver, message);
+					}
+
 					activeHandlers.sendMessageToAll(SocketHandler.this, request);
 				}
 				inputFinished = true;
@@ -149,6 +137,25 @@ public class SocketHandler {
 				}
 			}
 			System.err.println("DBG>Input handler for " + clientID + " has finished.");
+		}
+
+		public void rename(String newName, String type){
+			boolean exists = false;
+			int index;
+			for(index = 0; i < clientNames.size(); i++){
+				if(newName.equals(clientNames.get(i))){
+					exists = true;
+					break;
+				}
+			}
+			if(!exists){
+				clientNames.add(newName);
+				activeHandlers.setName(SocketHandler.this, newName);
+				isFirstConn = false;
+			}
+			if(type.equals("rename")){
+				clientNames.remove(index);
+			}
 		}
 
 	}

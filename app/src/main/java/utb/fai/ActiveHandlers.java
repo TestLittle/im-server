@@ -20,6 +20,15 @@ public class ActiveHandlers {
             }
     }
 
+    synchronized void sendPrivateMessage(SocketHandler sender, String receiver, String message){
+        for(SocketHandler handler : activeHandlersSet){
+            if(handler != sender && handler.clientName == receiver){
+                if(handler.messages.offer(message))
+                    System.err.printf("Client %s message queue is full, dropping the message!\n", handler.clientID);
+            }
+        }
+    }
+
     /**
      * add přidá do množiny aktivních handlerù nový handler.
      * Metoda je sychronizovaná, protože HashSet neumí multithreading.
