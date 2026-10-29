@@ -11,6 +11,7 @@ public class SocketHandler {
 	/** client ID je řetezec ve formátu <IP_adresa>:<port> */
 	String clientID;
 	String clientName;
+	ArrayList<String> clientNames = new ArrayList<String>();
 
 	/**
 	 * activeHandlers je reference na množinu všech právě běžících SocketHandlerů.
@@ -95,14 +96,35 @@ public class SocketHandler {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), "UTF-8"));
 				while ((request = reader.readLine()) != null) { // přišla od mého klienta nějaká zpráva?
 					if(isFirstConn){
-						activeHandlers.setName(SocketHandler.this, request);
-						isFirstConn = false;
+						bool exists = false;
+						for(int i = 0; i < clientNames.size(); i++){
+							if(request.equals(clientNames[i])){
+								exists = true;
+								break;
+							}
+						}
+						if(!exists){
+							clientNames.add(request);
+							activeHandlers.setName(SocketHandler.this, request);
+							isFirstConn = false;
+						}
 						continue;
 					}
 
 					if(request.startsWith("#setMyName")){
+						bool exists = false;
 						String name = request.replace("#setMyName", "").trim();
-						activeHandlers.setName(SocketHandler.this, name);
+						for(int i = 0; i < clientNames.size(); i++){
+							if(name.equals(clientNames[i])){
+								exists = true;
+								break;
+							}
+						}
+						if(!exists){
+							clientNames.remove(clientName);
+							activeHandlers.setName(SocketHandler.this, name);
+							clientNames.add(name);
+						}
 						continue;
 					}
 					// ano - pošli ji všem ostatním klientům
