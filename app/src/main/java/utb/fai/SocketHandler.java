@@ -106,7 +106,9 @@ public class SocketHandler {
 
 					if(request.startsWith("#setMyName")){
 						String name = request.replace("#setMyName", "").trim();
+						System.out.println("Before set" + clientNames.size());
 						boolean exists = rename(name);
+						System.out.println("After set" + clientNames.size());
 						continue;
 					}
 
@@ -147,6 +149,7 @@ public class SocketHandler {
 		public boolean rename(String newName){
 			boolean exists = false;
 			int index;
+			System.out.println(clientNames.size());
 			for(index = 0; index < clientNames.size(); index++){
 				System.out.println(clientNames.get(index));
 				if(newName.equals(clientNames.get(index))){
@@ -159,6 +162,7 @@ public class SocketHandler {
 					clientNames.remove(clientName);
 				}
 				clientNames.add(newName);
+				System.out.println(clientNames.size());
 				activeHandlers.setName(SocketHandler.this, newName);
 			}
 			return exists;
