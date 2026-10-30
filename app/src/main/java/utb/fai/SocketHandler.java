@@ -148,21 +148,18 @@ public class SocketHandler {
 			boolean exists = false;
 			int index;
 			for(index = 0; index < clientNames.size(); index++){
+				System.out.println(clientNames.get(index));
 				if(newName.equals(clientNames.get(index))){
-					System.out.println(clientNames.get(index));
 					exists = true;
 					break;
 				}
 			}
 			if(!exists){
 				if(clientName != null){
-					System.out.println("We're here");
 					clientNames.remove(clientName);
 				}
-				System.out.println(clientName);
 				clientNames.add(newName);
 				activeHandlers.setName(SocketHandler.this, newName);
-				System.out.println(clientName);
 			}
 			return exists;
 		}
