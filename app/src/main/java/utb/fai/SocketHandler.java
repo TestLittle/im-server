@@ -121,7 +121,7 @@ public class SocketHandler {
 						request = request.replaceFirst("^\\s*", ""); //Odebrání mezer na začátku
 						request = "[" + clientName + "] >> " + request;
 						System.out.println(request);
-						activeHandlers.sendPrivateMessage(SocketHandler.this, receiver, request);
+						activeHandlers.sendPrivateMessage(receiver, request);
 					}else{
 						// ano - pošli ji všem ostatním klientům
 						//request = "From client " + clientID + ": " + request;
@@ -148,25 +148,8 @@ public class SocketHandler {
 		}
 
 		public boolean rename(String newName){
-			boolean exists = false;
-			int index;
-			System.out.println(clientNames.size());
-			if(clientNames.size() != 0){
-				for(index = 0; index < clientNames.size(); index++){
-					if(newName.equals(clientNames.get(index))){
-						exists = true;
-						break;
-					}
-				}
-			}
-			
+			boolean exists = activeHandlers.checkIfUserAlreadyExists(newName);
 			if(!exists){
-				if(clientName != null){
-					clientNames.remove(clientName);
-				}
-				System.out.println(clientNames);
-				clientNames.add(newName);
-				System.out.println(clientNames);
 				activeHandlers.setName(SocketHandler.this, newName);
 			}
 			return exists;

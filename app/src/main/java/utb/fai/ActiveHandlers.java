@@ -20,12 +20,21 @@ public class ActiveHandlers {
             }
     }
 
-    synchronized void sendPrivateMessage(SocketHandler sender, String receiver, String message){
+    synchronized void sendPrivateMessage(String receiver, String message){
         for(SocketHandler handler : activeHandlersSet)
             if(handler.clientName.equals(receiver)){
                 if(handler.messages.offer(message))
                     System.err.printf("Client %s message queue is full, dropping the message!\n", handler.clientID);
             }
+    }
+
+    synchronized boolean checkIfUserAlreadyExists(String newName){
+        for(SocketHandler handler: activeHandlersSet){
+            if(handler.clientName.equals(newName)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
