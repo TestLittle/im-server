@@ -23,7 +23,6 @@ public class ActiveHandlers {
     synchronized void sendPrivateMessage(SocketHandler sender, String receiver, String message){
         for(SocketHandler handler : activeHandlersSet)
             if(handler.clientName.equals(receiver)){
-                System.out.println(receiver);
                 if(handler.messages.offer(message))
                     System.err.printf("Client %s message queue is full, dropping the message!\n", handler.clientID);
             }
