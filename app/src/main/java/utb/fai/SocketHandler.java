@@ -12,7 +12,6 @@ public class SocketHandler {
 	/** client ID je řetezec ve formátu <IP_adresa>:<port> */
 	String clientID;
 	String clientName;
-	CopyOnWriteArrayList<String> clientNames = new CopyOnWriteArrayList<String>();
 
 	/**
 	 * activeHandlers je reference na množinu všech právě běžících SocketHandlerů.
@@ -97,9 +96,7 @@ public class SocketHandler {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), "UTF-8"));
 				while ((request = reader.readLine()) != null) { // přišla od mého klienta nějaká zpráva?
 					if(isFirstConn){
-						System.out.println(clientNames);
 						boolean exists = rename(request);
-						System.out.println(clientNames);
 						if(!exists){
 							isFirstConn = false;
 						}
@@ -108,7 +105,6 @@ public class SocketHandler {
 
 					if(request.startsWith("#setMyName")){
 						String name = request.replace("#setMyName", "").trim();
-						System.out.println(clientNames);
 						boolean exists = rename(name);
 						continue;
 					}
@@ -148,27 +144,8 @@ public class SocketHandler {
 		}
 
 		public boolean rename(String newName){
-			boolean exists = false;
-			int index;
-			System.out.println(clientNames.size());
-			if(clientNames.size() != 0){
-				for(index = 0; index < clientNames.size(); index++){
-					if(newName.equals(clientNames.get(index))){
-						exists = true;
-						break;
-					}
-				}
-			}
-			
-			if(!exists){
-				if(clientName != null){
-					clientNames.remove(clientName);
-				}
-				System.out.println(clientNames);
-				clientNames.add(newName);
-				System.out.println(clientNames);
-				activeHandlers.setName(SocketHandler.this, newName);
-			}
+			boolean exists = activeHandlers.checkIfUserAlreadyExists(newName);
+			activeHandlers.setName(newName);
 			return exists;
 		}
 

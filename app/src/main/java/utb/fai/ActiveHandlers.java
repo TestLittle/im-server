@@ -28,6 +28,15 @@ public class ActiveHandlers {
             }
     }
 
+    synchronized boolean checkIfUserAlreadyExists(String newName){
+        for(SocketHandler handler: activeHandlersSet){
+            if(handler.clientName.equals(newName)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * add přidá do množiny aktivních handlerù nový handler.
      * Metoda je sychronizovaná, protože HashSet neumí multithreading.
