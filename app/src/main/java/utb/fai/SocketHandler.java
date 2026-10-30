@@ -12,7 +12,7 @@ public class SocketHandler {
 	/** client ID je řetezec ve formátu <IP_adresa>:<port> */
 	String clientID;
 	String clientName;
-	ArrayList<String> clientNames = new ArrayList<String>();
+	CopyOnWriteArrayList<String> clientNames = new CopyOnWriteArrayList<String>();
 
 	/**
 	 * activeHandlers je reference na množinu všech právě běžících SocketHandlerů.
