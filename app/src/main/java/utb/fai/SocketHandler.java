@@ -97,7 +97,9 @@ public class SocketHandler {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), "UTF-8"));
 				while ((request = reader.readLine()) != null) { // přišla od mého klienta nějaká zpráva?
 					if(isFirstConn){
+						System.out.println(clientNames);
 						boolean exists = rename(request);
+						System.out.println(clientNames);
 						if(!exists){
 							isFirstConn = false;
 						}
@@ -106,9 +108,8 @@ public class SocketHandler {
 
 					if(request.startsWith("#setMyName")){
 						String name = request.replace("#setMyName", "").trim();
-						System.out.println("Before set" + clientNames.size());
+						System.out.println(clientNames);
 						boolean exists = rename(name);
-						System.out.println("After set" + clientNames.size());
 						continue;
 					}
 
@@ -151,7 +152,6 @@ public class SocketHandler {
 			int index;
 			System.out.println(clientNames.size());
 			for(index = 0; index < clientNames.size(); index++){
-				System.out.println(clientNames.get(index));
 				if(newName.equals(clientNames.get(index))){
 					exists = true;
 					break;
@@ -161,8 +161,9 @@ public class SocketHandler {
 				if(clientName != null){
 					clientNames.remove(clientName);
 				}
+				System.out.println(clientNames);
 				clientNames.add(newName);
-				System.out.println(clientNames.size());
+				System.out.println(clientNames);
 				activeHandlers.setName(SocketHandler.this, newName);
 			}
 			return exists;
