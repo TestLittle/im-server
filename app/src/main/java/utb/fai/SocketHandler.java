@@ -165,7 +165,7 @@ public class SocketHandler {
 					clientNames.remove(clientName);
 				}
 				System.out.println(clientNames);
-				clientNames = clientNames.add(newName);
+				clientNames.add(newName);
 				System.out.println(clientNames);
 				activeHandlers.setName(SocketHandler.this, newName);
 			}
