@@ -97,6 +97,9 @@ public class SocketHandler {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), StandardCharsets.UTF_8));
 				while ((request = reader.readLine()) != null) { // přišla od mého klienta nějaká zpráva?
 					if(isFirstConn){
+						if(request.contains("Zadejte jmeno, pod kterym budete chatovat:")){
+							continue;
+						}
 						rename(request);
 						if(SocketHandler.this.clientID != null){
 							isFirstConn = false;
