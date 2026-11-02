@@ -2,7 +2,6 @@ package utb.fai;
 
 import java.io.*;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.*;
 import java.util.*;
 
@@ -13,6 +12,7 @@ public class SocketHandler {
 	/** client ID je řetezec ve formátu <IP_adresa>:<port> */
 	String clientID;
 	String clientName;
+	CopyOnWriteArrayList<String> clientNames = new CopyOnWriteArrayList<String>();
 
 	/**
 	 * activeHandlers je reference na množinu všech právě běžících SocketHandlerů.
@@ -60,8 +60,8 @@ public class SocketHandler {
 				System.err.println("DBG>Output handler running for " + clientID);
 				writer = new OutputStreamWriter(mySocket.getOutputStream(), "UTF-8");
 				//writer.write("You are connected from " + clientID + "\n");
-				//writer.write("Zadejte jmeno, pod kterym budete chatovat:\n");
-				//writer.flush();
+				writer.write("Zadejte jmeno, pod kterym budete chatovat:\n");
+				writer.flush();
 				while (!inputFinished) {
 					String m = messages.take();// blokující čtení - pokud není ve frontě zpráv nic, uspi se!
 					writer.write(m + "\r\n"); // pokud nějaké zprávy od ostatních máme,
@@ -94,11 +94,13 @@ public class SocketHandler {
 				 * všech aktivních handlerů, aby chodily zprávy od ostatních i nám
 				 */
 				activeHandlers.add(SocketHandler.this);
-				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), StandardCharsets.UTF_8));
+				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), "UTF-8"));
 				while ((request = reader.readLine()) != null) { // přišla od mého klienta nějaká zpráva?
 					if(isFirstConn){
-						rename(request);
-						if(SocketHandler.this.clientID != null){
+						System.out.println(clientNames);
+						boolean exists = rename(request);
+						System.out.println(clientNames);
+						if(!exists){
 							isFirstConn = false;
 						}
 						continue;
@@ -106,7 +108,8 @@ public class SocketHandler {
 
 					if(request.startsWith("#setMyName")){
 						String name = request.replace("#setMyName", "").trim();
-						rename(name);
+						System.out.println(clientNames);
+						boolean exists = rename(name);
 						continue;
 					}
 
@@ -144,8 +147,30 @@ public class SocketHandler {
 			System.err.println("DBG>Input handler for " + clientID + " has finished.");
 		}
 
-		public void rename(String newName){
-			activeHandlers.setName(SocketHandler.this, newName);
+		public boolean rename(String newName){
+			boolean exists = false;
+			int index;
+			System.out.println(clientNames.size());
+			if(clientNames.size() != 0){
+				for(index = 0; index < clientNames.size(); index++){
+					if(newName.equals(clientNames.get(index))){
+						exists = true;
+						break;
+					}
+				}
+			}
+			
+			if(!exists){
+				if(clientName != null){
+					clientNames.remove(clientName);
+				}
+				System.out.println(clientNames);
+				clientNames.add(newName);
+				System.out.println(clientNames);
+				activeHandlers.setName(SocketHandler.this, newName);
+			}
+			return exists;
 		}
+
 	}
 }
