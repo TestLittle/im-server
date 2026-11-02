@@ -52,21 +52,24 @@ public class ActiveHandlers {
 
     synchronized boolean setName(SocketHandler sender, String name){
         boolean exists = false;
-        if(name.equals("")){
+        System.out.println(sender.clientName);
+        if(name.isEmpty()){
             return true;
         }
 
         for(SocketHandler handler : activeHandlersSet){
-            if(handler.clientName.equals("") && handler != sender){
+            if(handler.clientName.isEmpty() && handler != sender){
                 continue;
             }
-            if(handler.clientName.equals(name) && handler != sender){
+            if (handler.clientName.equals(name) && handler != sender) {
                 exists = true;
+                break;
             }
         }
         if(!exists){
             sender.clientName = name;
         }
+        System.out.println(sender.clientName);
         return exists; 
     }
 }
