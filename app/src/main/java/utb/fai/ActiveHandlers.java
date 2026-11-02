@@ -50,15 +50,22 @@ public class ActiveHandlers {
         return activeHandlersSet.remove(handler);
     }
 
-    synchronized boolean setName(SocketHandler socketHandler, String name){
+    synchronized boolean setName(SocketHandler sender, String name){
         boolean exists = false;
+        if(name.equals("")){
+            return true;
+        }
+
         for(SocketHandler handler : activeHandlersSet){
-            if(handler.clientName.equals(name)){
+            if(handler.clientName.equals("") && handler != sender){
+                continue;
+            }
+            if(handler.clientName.equals(name) && handler != sender){
                 exists = true;
             }
         }
         if(!exists){
-            socketHandler.clientName = name;
+            sender.clientName = name;
         }
         return exists; 
     }
