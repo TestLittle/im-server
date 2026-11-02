@@ -52,7 +52,7 @@ public class ActiveHandlers {
 
     synchronized void setName(SocketHandler sender, String name){
         boolean exists = false;
-        System.out.println("Pred zmenou jmena: " + sender.clientName);
+        //System.out.println("Pred zmenou jmena: " + sender.clientName);
 
         for(SocketHandler handler : activeHandlersSet){
             if(handler.clientName.isEmpty() && handler != sender){
@@ -66,6 +66,26 @@ public class ActiveHandlers {
         if(!exists){
             sender.clientName = name;
         }
-        System.out.println("Po zmene jmena: " + sender.clientName);
+        //System.out.println("Po zmene jmena: " + sender.clientName);
+    }
+
+    synchronized void sendMessageToGroup(SocketHandler sender, String group, String message){
+        for(SocketHandler handler : activeHandlersSet){
+            for(String handlerGroup : handler.groups){
+                if(handler != sender && handlerGroup.equals(group)){
+                    if(handler.messages.offer(message))
+                        System.err.printf("Client %s message queue is full, dropping the message!\n", handler.clientID);
+                }
+            }
+        }
+    }
+    synchronized void getGroups(SocketHandler sender){
+        String groups = "";
+        for(String handlerGroup : sender.groups){
+            groups += handlerGroup + ", ";
+        }
+        groups = groups.substring(0, groups.length() - 2);
+        if(sender.messages.offer(groups))
+            System.err.printf("Client %s message queue is full, dropping the message!\n", sender.clientID);
     }
 }
