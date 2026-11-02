@@ -115,15 +115,18 @@ public class SocketHandler {
 					if(request.startsWith("#join")){
 						String group = request.replace("#join", "").trim();
 						SocketHandler.this.groups.add(group);
+						continue;
 					}
 
 					if(request.startsWith("#leave")){
 						String group = request.replace("#join", "").trim();
 						SocketHandler.this.groups.remove(group);
+						continue;
 					}
 
 					if(request.startsWith("#groups")){
 						activeHandlers.getGroups(SocketHandler.this);
+						continue;
 					}
 
 					if(request.startsWith("#sendPrivate")){
