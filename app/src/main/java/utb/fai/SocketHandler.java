@@ -120,7 +120,13 @@ public class SocketHandler {
 
 					if(request.startsWith("#leave")){
 						String group = request.replace("#join", "").trim();
+						for(String g : SocketHandler.this.groups){
+							System.out.println("Before removal: " + g);
+						}
 						SocketHandler.this.groups.remove(group);
+						for(String g : SocketHandler.this.groups){
+							System.out.println("After removal: "+ g);
+						}
 						continue;
 					}
 
