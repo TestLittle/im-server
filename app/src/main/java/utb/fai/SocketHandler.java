@@ -2,6 +2,7 @@ package utb.fai;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.*;
 import java.util.*;
 
@@ -93,11 +94,11 @@ public class SocketHandler {
 				 * všech aktivních handlerů, aby chodily zprávy od ostatních i nám
 				 */
 				activeHandlers.add(SocketHandler.this);
-				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), "UTF-8"));
+				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), StandardCharsets.UTF_8));
 				while ((request = reader.readLine()) != null) { // přišla od mého klienta nějaká zpráva?
 					if(isFirstConn){
-						boolean exists = rename(request);
-						if(!exists){
+						rename(request);
+						if(SocketHandler.this.clientID != null){
 							isFirstConn = false;
 						}
 						continue;
@@ -105,7 +106,7 @@ public class SocketHandler {
 
 					if(request.startsWith("#setMyName")){
 						String name = request.replace("#setMyName", "").trim();
-						boolean exists = rename(name);
+						rename(name);
 						continue;
 					}
 
@@ -143,11 +144,8 @@ public class SocketHandler {
 			System.err.println("DBG>Input handler for " + clientID + " has finished.");
 		}
 
-		public boolean rename(String newName){
-			boolean exists = activeHandlers.checkIfUserAlreadyExists(newName);
-			activeHandlers.setName(newName);
-			return exists;
+		public void rename(String newName){
+			activeHandlers.setName(SocketHandler.this, newName);
 		}
-
 	}
 }

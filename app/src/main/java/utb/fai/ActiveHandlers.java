@@ -28,15 +28,6 @@ public class ActiveHandlers {
             }
     }
 
-    synchronized boolean checkIfUserAlreadyExists(String newName){
-        for(SocketHandler handler: activeHandlersSet){
-            if(handler.clientName.equals(newName)){
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * add přidá do množiny aktivních handlerù nový handler.
      * Metoda je sychronizovaná, protože HashSet neumí multithreading.
@@ -44,8 +35,8 @@ public class ActiveHandlers {
      * @param handler - reference na handler, který se má přidat.
      * @return true if the set did not already contain the specified element.
      */
-    synchronized boolean add(SocketHandler handler) {
-        return activeHandlersSet.add(handler);
+    synchronized void add(SocketHandler handler) {
+        activeHandlersSet.add(handler);
     }
 
     /**
@@ -55,11 +46,15 @@ public class ActiveHandlers {
      * @param handler - reference na handler, který se má odstranit
      * @return true if the set did not already contain the specified element.
      */
-    synchronized boolean remove(SocketHandler handler) {
-        return activeHandlersSet.remove(handler);
+    synchronized void remove(SocketHandler handler) {
+        activeHandlersSet.remove(handler);
     }
 
     synchronized void setName(SocketHandler socketHandler, String name){
-        socketHandler.clientName = name;
+        for(SocketHandler handler: activeHandlersSet) {
+            if (!handler.clientName.equals(name)) {
+                socketHandler.clientName = name;
+            }
+        }
     }
 }
