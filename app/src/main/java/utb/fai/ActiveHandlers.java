@@ -35,8 +35,8 @@ public class ActiveHandlers {
      * @param handler - reference na handler, který se má přidat.
      * @return true if the set did not already contain the specified element.
      */
-    synchronized boolean add(SocketHandler handler) {
-        return activeHandlersSet.add(handler);
+    synchronized void add(SocketHandler handler) {
+        activeHandlersSet.add(handler);
     }
 
     /**
@@ -46,16 +46,13 @@ public class ActiveHandlers {
      * @param handler - reference na handler, který se má odstranit
      * @return true if the set did not already contain the specified element.
      */
-    synchronized boolean remove(SocketHandler handler) {
-        return activeHandlersSet.remove(handler);
+    synchronized void remove(SocketHandler handler) {
+        activeHandlersSet.remove(handler);
     }
 
-    synchronized boolean setName(SocketHandler sender, String name){
+    synchronized void setName(SocketHandler sender, String name){
         boolean exists = false;
-        System.out.println(sender.clientName);
-        if(name.isEmpty()){
-            return true;
-        }
+        System.out.println("Pred zmenou jmena: " + sender.clientName);
 
         for(SocketHandler handler : activeHandlersSet){
             if(handler.clientName.isEmpty() && handler != sender){
@@ -69,7 +66,6 @@ public class ActiveHandlers {
         if(!exists){
             sender.clientName = name;
         }
-        System.out.println(sender.clientName);
-        return exists; 
+        System.out.println("Po zmene jmena: " + sender.clientName);
     }
 }
