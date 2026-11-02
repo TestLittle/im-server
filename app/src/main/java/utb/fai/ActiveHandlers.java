@@ -58,7 +58,7 @@ public class ActiveHandlers {
         }
 
         for(SocketHandler handler : activeHandlersSet){
-            if(handler.clientName != null && handler != sender){
+            if(handler.clientName == null && handler != sender){
                 continue;
             }
             if (handler.clientName.equals(name) && handler != sender) {
