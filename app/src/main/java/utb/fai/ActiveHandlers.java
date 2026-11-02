@@ -14,9 +14,13 @@ public class ActiveHandlers {
      */
     synchronized void sendMessageToAll(SocketHandler sender, String message) {
         for (SocketHandler handler : activeHandlersSet) // pro všechny aktivní handlery
-            if (handler != sender) {
-                if (!handler.messages.offer(message)) // zkus přidat zprávu do fronty jeho zpráv
-                    System.err.printf("Client %s message queue is full, dropping the message!\n", handler.clientID);
+            for(String handlerGroup : handler.groups){
+                for(String senderGroup : sender.groups){
+                    if(handler != sender && handlerGroup.equals(senderGroup)){
+                        if(handler.messages.offer(message))
+                            System.err.printf("Client %s message queue is full, dropping the message!\n", handler.clientID);
+                    }
+                }
             }
     }
 
@@ -52,7 +56,6 @@ public class ActiveHandlers {
 
     synchronized void setName(SocketHandler sender, String name){
         boolean exists = false;
-        //System.out.println("Pred zmenou jmena: " + sender.clientName);
 
         for(SocketHandler handler : activeHandlersSet){
             if(handler.clientName.isEmpty() && handler != sender){
@@ -66,19 +69,8 @@ public class ActiveHandlers {
         if(!exists){
             sender.clientName = name;
         }
-        //System.out.println("Po zmene jmena: " + sender.clientName);
     }
 
-    synchronized void sendMessageToGroup(SocketHandler sender, String group, String message){
-        for(SocketHandler handler : activeHandlersSet){
-            for(String handlerGroup : handler.groups){
-                if(handler != sender && handlerGroup.equals(group)){
-                    if(handler.messages.offer(message))
-                        System.err.printf("Client %s message queue is full, dropping the message!\n", handler.clientID);
-                }
-            }
-        }
-    }
     synchronized void getGroups(SocketHandler sender){
         String groups = "";
         for(String handlerGroup : sender.groups){
