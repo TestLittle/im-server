@@ -12,6 +12,7 @@ public class SocketHandler {
 	/** client ID je řetezec ve formátu <IP_adresa>:<port> */
 	String clientID;
 	String clientName;
+	CopyOnWriteArrayList<String> groups = new CopyOnWriteArrayList<String>();
 
 	/**
 	 * activeHandlers je reference na množinu všech právě běžících SocketHandlerů.
@@ -89,6 +90,7 @@ public class SocketHandler {
 				String request = "";
 				boolean isFirstConn = true;
 				SocketHandler.this.clientName = "";
+				SocketHandler.this.groups.add("public");
 				/**
 				 * v okamžiku, kdy nás Thread pool spustí, přidáme se do množiny
 				 * všech aktivních handlerů, aby chodily zprávy od ostatních i nám
@@ -108,6 +110,20 @@ public class SocketHandler {
 						String name = request.replace("#setMyName", "").trim();
 						activeHandlers.setName(SocketHandler.this, name);
 						continue;
+					}
+
+					if(request.startsWith("#join")){
+						String group = request.replace("#join", "").trim();
+						SocketHandler.this.groups.add(group);
+					}
+
+					if(request.startsWith("#leave")){
+						String group = request.replace("#join", "").trim();
+						SocketHandler.this.groups.remove(group);
+					}
+
+					if(request.startsWith("#groups")){
+						activeHandlers.getGroups(SocketHandler.this);
 					}
 
 					if(request.startsWith("#sendPrivate")){
