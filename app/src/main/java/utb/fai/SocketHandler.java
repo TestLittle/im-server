@@ -60,8 +60,8 @@ public class SocketHandler {
 				System.err.println("DBG>Output handler running for " + clientID);
 				writer = new OutputStreamWriter(mySocket.getOutputStream(), "UTF-8");
 				//writer.write("You are connected from " + clientID + "\n");
-				writer.write("Zadejte jmeno, pod kterym budete chatovat:\n");
-				writer.flush();
+				//writer.write("Zadejte jmeno, pod kterym budete chatovat:\n");
+				//writer.flush();
 				while (!inputFinished) {
 					String m = messages.take();// blokující čtení - pokud není ve frontě zpráv nic, uspi se!
 					writer.write(m + "\r\n"); // pokud nějaké zprávy od ostatních máme,
@@ -96,10 +96,6 @@ public class SocketHandler {
 				activeHandlers.add(SocketHandler.this);
 				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), StandardCharsets.UTF_8));
 				while ((request = reader.readLine()) != null) { // přišla od mého klienta nějaká zpráva?
-					if(request.contains("Zadejte jmeno, pod kterym budete chatovat:")){
-						continue;
-					}
-					
 					if(isFirstConn){
 						rename(request);
 						if(SocketHandler.this.clientID != null){
