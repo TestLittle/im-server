@@ -51,7 +51,7 @@ public class ActiveHandlers {
     }
 
     synchronized boolean setName(SocketHandler socketHandler, String name){
-        bool exists = false;
+        boolean exists = false;
         for(SocketHandler handler : activeHandlersSet){
             if(handler.clientName.equals(name)){
                 exists = true;
