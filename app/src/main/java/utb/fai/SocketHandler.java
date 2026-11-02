@@ -88,6 +88,7 @@ public class SocketHandler {
 				System.err.println("DBG>Input handler running for " + clientID);
 				String request = "";
 				boolean isFirstConn = true;
+				SocketHandler.this.clientName = "";
 				/**
 				 * v okamžiku, kdy nás Thread pool spustí, přidáme se do množiny
 				 * všech aktivních handlerů, aby chodily zprávy od ostatních i nám
@@ -96,8 +97,8 @@ public class SocketHandler {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(mySocket.getInputStream(), "UTF-8"));
 				while ((request = reader.readLine()) != null) { // přišla od mého klienta nějaká zpráva?
 					if(isFirstConn){
-						boolean exists = rename(request);
-						if(!exists){
+						activeHandlers.setName(SocketHandler.this, request);
+						if(!SocketHandler.this.clientName.isEmpty()){
 							isFirstConn = false;
 						}
 						continue;
@@ -105,7 +106,7 @@ public class SocketHandler {
 
 					if(request.startsWith("#setMyName")){
 						String name = request.replace("#setMyName", "").trim();
-						boolean exists = rename(name);
+						activeHandlers.setName(SocketHandler.this, name);
 						continue;
 					}
 
@@ -141,10 +142,6 @@ public class SocketHandler {
 				}
 			}
 			System.err.println("DBG>Input handler for " + clientID + " has finished.");
-		}
-
-		public boolean rename(String newName){
-			return activeHandlers.setName(SocketHandler.this, newName);
 		}
 	}
 }
